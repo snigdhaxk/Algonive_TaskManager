@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TaskFlow — Algonive Task Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Reminder Banner -->
+  <div id="reminderBanner" class="reminder-banner hidden">
+    <span id="reminderText"></span>
+    <button onclick="document.getElementById('reminderBanner').classList.add('hidden')">✕</button>
+  </div>
+
+  <div class="app-wrapper">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">TF</div>
+        <div>
+          <div class="logo-title">TaskFlow</div>
+        </div>
+      </div>
+
+      <nav class="filter-nav">
+        <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">
+          <span class="filter-icon">◈</span> All Tasks
+          <span class="count-badge" id="count-all">0</span>
+        </button>
+        <button class="filter-btn" data-filter="active" onclick="setFilter('active', this)">
+          <span class="filter-icon">◉</span> Active
+          <span class="count-badge" id="count-active">0</span>
+        </button>
+        <button class="filter-btn" data-filter="completed" onclick="setFilter('completed', this)">
+          <span class="filter-icon">◎</span> Completed
+          <span class="count-badge" id="count-completed">0</span>
+        </button>
+        <button class="filter-btn" data-filter="overdue" onclick="setFilter('overdue', this)">
+          <span class="filter-icon">⚠</span> Overdue
+          <span class="count-badge urgent" id="count-overdue">0</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="progress-label">
+          <span>Overall Progress</span>
+          <span id="progressPercent">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+
+      <header class="main-header">
+        <div>
+          <h1 class="main-title" id="headerTitle">All Tasks</h1>
+          <p class="main-subtitle" id="headerDate"></p>
+        </div>
+        <button class="add-btn" onclick="openModal()">+ New Task</button>
+      </header>
+
+      <!-- Task List -->
+      <div class="task-grid" id="taskGrid">
+        <!-- tasks render here -->
+      </div>
+
+      <div class="empty-state hidden" id="emptyState">
+        <div class="empty-icon">📋</div>
+        <p>No tasks here yet.</p>
+        <span>Click <strong>+ New Task</strong> to get started</span>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay hidden" id="modalOverlay" onclick="closeModalOnOverlay(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">New Task</h2>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+
+      <div class="form-group">
+        <label>Task Title <span class="required">*</span></label>
+        <input type="text" id="taskTitle" placeholder="e.g. Complete project report" maxlength="80"/>
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="taskDesc" placeholder="Add details about this task..." rows="3"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Due Date <span class="required">*</span></label>
+          <input type="date" id="taskDate"/>
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select id="taskPriority">
+            <option value="low">🟢 Low</option>
+            <option value="medium" selected>🟡 Medium</option>
+            <option value="high">🔴 High</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-save" onclick="saveTask()">Save Task</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
