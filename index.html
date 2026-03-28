@@ -3,17 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TaskFlow — Algonive Task Manager</title>
+  <title>Taskorbit — Task Manager</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
   <!-- Reminder Banner -->
   <div id="reminderBanner" class="reminder-banner hidden">
-    <span id="reminderText"></span>
-    <button onclick="document.getElementById('reminderBanner').classList.add('hidden')">✕</button>
+    <div class="reminder-inner">
+      <span class="reminder-pulse"></span>
+      <span id="reminderText"></span>
+    </div>
+    <button onclick="document.getElementById('reminderBanner').classList.add('hidden')" aria-label="Dismiss">✕</button>
   </div>
 
   <div class="app-wrapper">
@@ -21,38 +24,59 @@
     <!-- Sidebar -->
     <aside class="sidebar">
       <div class="logo">
-        <div class="logo-icon">TF</div>
+        <div class="logo-icon">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <circle cx="11" cy="11" r="9" stroke="#0d0f14" stroke-width="2"/>
+            <path d="M7 11l3 3 5-5" stroke="#0d0f14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
         <div>
-          <div class="logo-title">TaskFlow</div>
+          <div class="logo-title">Taskorbit</div>
+          <div class="logo-sub">TASK MANAGER</div>
         </div>
       </div>
 
       <nav class="filter-nav">
-        <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">
-          <span class="filter-icon">◈</span> All Tasks
+        <button class="filter-btn active" onclick="setFilter('all', this)">
+          <span class="filter-icon">◈</span>
+          <span class="filter-label">All Tasks</span>
           <span class="count-badge" id="count-all">0</span>
         </button>
-        <button class="filter-btn" data-filter="active" onclick="setFilter('active', this)">
-          <span class="filter-icon">◉</span> Active
+        <button class="filter-btn" onclick="setFilter('active', this)">
+          <span class="filter-icon">◉</span>
+          <span class="filter-label">Active</span>
           <span class="count-badge" id="count-active">0</span>
         </button>
-        <button class="filter-btn" data-filter="completed" onclick="setFilter('completed', this)">
-          <span class="filter-icon">◎</span> Completed
+        <button class="filter-btn" onclick="setFilter('completed', this)">
+          <span class="filter-icon">◎</span>
+          <span class="filter-label">Completed</span>
           <span class="count-badge" id="count-completed">0</span>
         </button>
-        <button class="filter-btn" data-filter="overdue" onclick="setFilter('overdue', this)">
-          <span class="filter-icon">⚠</span> Overdue
+        <button class="filter-btn" onclick="setFilter('overdue', this)">
+          <span class="filter-icon">⚠</span>
+          <span class="filter-label">Overdue</span>
           <span class="count-badge urgent" id="count-overdue">0</span>
         </button>
       </nav>
 
       <div class="sidebar-footer">
         <div class="progress-label">
-          <span>Overall Progress</span>
+          <span>Progress</span>
           <span id="progressPercent">0%</span>
         </div>
         <div class="progress-track">
           <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-item">
+            <span id="stat-done">0</span>
+            <span>done</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span id="stat-left">0</span>
+            <span>left</span>
+          </div>
         </div>
       </div>
     </aside>
@@ -65,13 +89,31 @@
           <h1 class="main-title" id="headerTitle">All Tasks</h1>
           <p class="main-subtitle" id="headerDate"></p>
         </div>
-        <button class="add-btn" onclick="openModal()">+ New Task</button>
+        <button class="add-btn" onclick="openModal()">
+          <span class="add-btn-icon">+</span>
+          <span>New Task</span>
+        </button>
       </header>
 
-      <!-- Task List -->
-      <div class="task-grid" id="taskGrid">
-        <!-- tasks render here -->
+      <!-- Search & Sort bar -->
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input type="text" id="searchInput" placeholder="Search tasks…" oninput="renderTasks()" />
+        </div>
+        <div class="sort-wrap">
+          <label for="sortSelect">Sort:</label>
+          <select id="sortSelect" onchange="renderTasks()">
+            <option value="dueDate">Due Date</option>
+            <option value="priority">Priority</option>
+            <option value="created">Created</option>
+            <option value="title">Title</option>
+          </select>
+        </div>
       </div>
+
+      <!-- Task Grid -->
+      <div class="task-grid" id="taskGrid"></div>
 
       <div class="empty-state hidden" id="emptyState">
         <div class="empty-icon">📋</div>
@@ -84,29 +126,29 @@
 
   <!-- Modal -->
   <div class="modal-overlay hidden" id="modalOverlay" onclick="closeModalOnOverlay(event)">
-    <div class="modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="modal-header">
         <h2 id="modalTitle">New Task</h2>
-        <button class="modal-close" onclick="closeModal()">✕</button>
+        <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
       </div>
 
       <div class="form-group">
-        <label>Task Title <span class="required">*</span></label>
+        <label for="taskTitle">Task Title <span class="required">*</span></label>
         <input type="text" id="taskTitle" placeholder="e.g. Complete project report" maxlength="80"/>
       </div>
 
       <div class="form-group">
-        <label>Description</label>
-        <textarea id="taskDesc" placeholder="Add details about this task..." rows="3"></textarea>
+        <label for="taskDesc">Description</label>
+        <textarea id="taskDesc" placeholder="Add details about this task…" rows="3"></textarea>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label>Due Date <span class="required">*</span></label>
+          <label for="taskDate">Due Date <span class="required">*</span></label>
           <input type="date" id="taskDate"/>
         </div>
         <div class="form-group">
-          <label>Priority</label>
+          <label for="taskPriority">Priority</label>
           <select id="taskPriority">
             <option value="low">🟢 Low</option>
             <option value="medium" selected>🟡 Medium</option>
@@ -121,6 +163,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Toast container -->
+  <div id="toastContainer" class="toast-container"></div>
 
   <script src="script.js"></script>
 </body>
