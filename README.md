@@ -1,7 +1,7 @@
 # Taskorbit — Task Manager
 
-![Taskorbit Preview](<img width="1876" height="1095" alt="Screenshot 2026-05-05 094828" src="https://github.com/user-attachments/assets/ad478761-6736-49a8-940d-708af85500a1" />
-)
+![Taskorbit Preview](./preview.png)
+
 
 > A clean, minimal task manager built to help you stay on top of your day — built during my Web Development Internship at **Algonive**.
 
